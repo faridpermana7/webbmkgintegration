@@ -8,6 +8,29 @@ class VsText(Enum):
     THE_10_KM = "> 10 km"
 
 
+class Provinces(BaseModel):
+    id: int
+    code: Optional[str] = None
+    name: Optional[str] = None
+    
+class Cities(BaseModel):
+    id: int
+    province_id: Optional[int] = None
+    code: Optional[str] = None
+    name: Optional[str] = None
+    
+class Districts(BaseModel):
+    id: int
+    city_id: Optional[int] = None
+    code: Optional[str] = None
+    name: Optional[str] = None
+
+class Village(BaseModel):
+    id: int
+    code: Optional[str] = None
+    district_id: Optional[int] = None
+    name: Optional[str] = None
+
 class WeatherDesc(Enum):
     BERAWAN = "Berawan"
     CERAH = "Cerah"

@@ -1,12 +1,85 @@
 from fastapi import FastAPI, Response
 from fastapi.responses import JSONResponse
-from model_master import Lokasi, Cuaca, VsText, WeatherDesc, WeatherDescEn, cuaca_to_dict, parse_cuaca_matrix, parse_cuaca_matrix_for_listcuaca
+from fastapi.middleware.cors import CORSMiddleware
+from model_master import Lokasi,Provinces, Districts, Cities, Village, Cuaca, VsText, WeatherDesc, WeatherDescEn, cuaca_to_dict, parse_cuaca_matrix, parse_cuaca_matrix_for_listcuaca
 from typing import List, Optional   
 import requests
 import html
 import json
 
 app = FastAPI()
+
+# Enable CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost",
+        "http://127.0.0.1",
+        "http://127.0.0.1:8000",
+        "http://127.0.0.1:8080",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+    
+    
+
+# Load provinces from provinces.json
+def load_provinces() -> List[Provinces]:
+    try:
+        with open('provinces.json', 'r') as f:
+            provinces_data = json.load(f)
+        return [Provinces(**province) for province in provinces_data]
+    except Exception as e:
+        print(f"Error loading provinces: {e}")
+        return []
+
+# Load provinces from provinces.json
+def load_provinces() -> List[Provinces]:
+    try:
+        with open('provinces.json', 'r') as f:
+            provinces_data = json.load(f)
+        return [Provinces(**province) for province in provinces_data]
+    except Exception as e:
+        print(f"Error loading provinces: {e}")
+        return []
+
+# Load cities from cities.json
+def load_cities() -> List[Cities]:
+    try:
+        with open('cities.json', 'r') as f:
+            cities_data = json.load(f)
+        return [Cities(**city) for city in cities_data]
+    except Exception as e:
+        print(f"Error loading cities: {e}")
+        return []
+    
+# Load districts from districts.json
+def load_districts() -> List[Districts]:
+    try:
+        with open('districts.json', 'r') as f:
+            districts_data = json.load(f)
+        return [Districts(**district) for district in districts_data]
+    except Exception as e:
+        print(f"Error loading districts: {e}")
+        return []
+    
+# Load villages from villages.json
+def load_villages() -> List[Village]:
+    try:
+        with open('villages.json', 'r') as f:
+            villages_data = json.load(f)
+        return [Village(**village) for village in villages_data]
+    except Exception as e:
+        print(f"Error loading villages: {e}")
+        return []
+
+provinces = load_provinces()
+cities = load_cities()
+districts = load_districts()
+villages = load_villages()
 
 @app.get("/")
 def prakiraan_cuaca():
@@ -53,54 +126,24 @@ def prakiraan_cuaca():
             content=f"ERROR: Gagal mengambil data. ({e})",
             media_type="text/plain"
         )
- 
-    # lokasi = data.get("lokasi", {})
-    # if "desa" in lokasi and "kecamatan" in lokasi:
-    #     html_content += f"<h2>Desa/Kelurahan: {html.escape(lokasi.get('desa','N/A'))}</h2>"
-    #     html_content += "<p>"
-    #     html_content += f"Kecamatan: {html.escape(lokasi.get('kecamatan','N/A'))}<br>"
-    #     html_content += f"Kota/Kabupaten: {html.escape(lokasi.get('kotkab','N/A'))}<br>"
-    #     html_content += f"Provinsi: {html.escape(lokasi.get('provinsi','N/A'))}<br>"
-    #     html_content += f"Koordinat Latitude: {html.escape(lokasi.get('lat','N/A'))}, Longitude: {html.escape(lokasi.get('lon','N/A'))}<br>"
-    #     html_content += f"Timezone: {html.escape(lokasi.get('timezone','N/A'))}<br>"
-    #     html_content += "</p>"
-    # else:
-    #     html_content += "<h2>Lokasi Tidak Ditemukan</h2>"
+  
 
-    # html_content += "<h3>Detail Prakiraan Cuaca:</h3>"
-    # cuaca_data = data.get("data", [{}])[0].get("cuaca", [])
-    # if isinstance(cuaca_data, list):
-    #     for index_hari, prakiraan_harian in enumerate(cuaca_data):
-    #         html_content += f"<h4>Hari ke-{index_hari+1}</h4><ul>"
-    #         if isinstance(prakiraan_harian, list):
-    #             for prakiraan in prakiraan_harian:
-    #                 waktu_lokal = html.escape(prakiraan.get("local_datetime", "N/A"))
-    #                 deskripsi = html.escape(prakiraan.get("weather_desc", "N/A"))
-    #                 alt_text = html.escape(prakiraan.get("weather_desc", "Ikon Cuaca"))
-    #                 suhu = html.escape(prakiraan.get("t", "N/A"))
-    #                 kelembapan = html.escape(prakiraan.get("hu", "N/A"))
-    #                 kec_angin = html.escape(prakiraan.get("ws", "N/A"))
-    #                 arah_angin = html.escape(prakiraan.get("wd", "N/A"))
-    #                 jarak_pandang = html.escape(prakiraan.get("vs_text", "N/A"))
+@app.get("/provinces", response_model=List[Provinces])
+def list_provinces():
+    return provinces
 
-    #                 raw_img_url = prakiraan.get("image", "")
-    #                 img_url_processed = raw_img_url.replace(" ", "%20") if raw_img_url else ""
+@app.get("/cities/byparentid/{parent_id}", response_model=List[Cities])
+def list_cities_by_parent_id(parent_id: int):
+    return [city for city in cities if city.province_id == parent_id]
 
-    #                 html_content += "<li>"
-    #                 html_content += f"<strong>Jam:</strong> {waktu_lokal} | "
-    #                 html_content += f"<strong>Cuaca:</strong> {deskripsi} "
-    #                 if img_url_processed:
-    #                     html_content += f'<img src="{img_url_processed}" alt="{alt_text}" title="{alt_text}"> | '
-    #                 html_content += f"<strong>Suhu:</strong> {suhu}°C | "
-    #                 html_content += f"<strong>Kelembapan:</strong> {kelembapan}% | "
-    #                 html_content += f"<strong>Kec. Angin:</strong> {kec_angin}km/j | "
-    #                 html_content += f"<strong>Arah Angin:</strong> dari {arah_angin} | "
-    #                 html_content += f"<strong>Jarak Pandang:</strong> {jarak_pandang}"
-    #                 html_content += "</li>"
-    #         else:
-    #             html_content += "<li>Data tidak valid.</li>"
-    #         html_content += "</ul>"
-    # else:
-    #     html_content += "<p>Struktur data prakiraan cuaca tidak ditemukan.</p>"
+@app.get("/districts/byparentid/{parent_id}", response_model=List[Districts])
+def list_districts_by_parent_id(parent_id: int):
+    return [district for district in districts if district.city_id == parent_id]
 
-    # html_content += "</body></html>"
+@app.get("/villages/byparentid/{parent_id}", response_model=List[Village])
+def list_villages_by_parent_id(parent_id: int):
+    return [village for village in villages if village.district_id == parent_id]
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=9999)

@@ -1,0 +1,32 @@
+[
+	{
+	  "id": 1,
+	  "code": "64.01:01.2009",
+	  "district_id": 1,
+	  "name": "Samuranggau"
+	},
+	{
+	  "id": 2,
+	  "code": "64.01:01.2010",
+	  "district_id": 1,
+	  "name": "Busui"
+	},
+	{
+	  "id": 3,
+	  "code": "64.01:01.2011",
+	  "district_id": 1,
+	  "name": "Batu Kajang"
+	},
+	{
+	  "id": 4,
+	  "code": "64.01:01.2012",
+	  "district_id": 1,
+	  "name": "Legai"
+	},
+	{
+	  "id": 4,
+	  "code": "64.01:01.2013",
+	  "district_id": 1,
+	  "name": "Sungai Terik"
+	}
+]
